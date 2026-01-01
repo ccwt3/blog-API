@@ -3,4 +3,5 @@ import { Router } from "express";
 const authRouter = Router();
 export default authRouter;
 
-authRouter.get("/", authController.getAuth);
+authRouter.post("/login", authController.authLogin);
+authRouter.post("/register", authController.authRegister)

@@ -2,6 +2,9 @@
 import express from "express";
 const app = express();
 
+// JWT initial config
+import jwt from "jsonwebtoken"
+
 // modules
 import authRouter from "./routes/authRouter";
 import postsRouter from "./routes/postsRouter";
@@ -18,6 +21,7 @@ app.use("/users", usersRouter)
 
 // running server
 app.use((err, req, res, next) => {
+  console.error(err);
   res.status(500).json({ message: "idk what happend mate" });
 });
 
