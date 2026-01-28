@@ -28,6 +28,10 @@ async function authLogin(req: any, res: any) {
 }
 
 async function authRegister(req: any, res: any) {
+  if (!req.body || !req.body.username || !req.body.password) {
+    return res.status(401).json({ message: "No given credentials" });
+  }
+
   const username = req.body.username;
   const password = req.body.password;
 
