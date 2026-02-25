@@ -17,5 +17,17 @@ interface UsersRequest extends Request {
 usersRouter.get("/", userController.getUsers);
 
 usersRouter.get("/me", checkToken, (req: UsersRequest, res: Response) => {
-  res.status(200).json({ message: `hello ${req.user?.username}` });
+  res
+    .status(200)
+    .cookie(
+      "prueba",
+      { username: req.user?.username },
+      {
+        signed: true,
+        httpOnly: true,
+        secure: process.env.ENVIRONMENT === "production",
+        maxAge: 1000 * 60,
+      },
+    )
+    .json({ message: `hello ${req.user?.username}` });
 });
