@@ -1,12 +1,14 @@
 import jwtFC from "../services/jwtFunctions";
 import userModel from "../models/UsersModel";
 
+import type { Request, Response } from "express";
+
 export default {
   authLogin,
   authRegister,
 };
 
-async function authLogin(req: any, res: any) {
+async function authLogin(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.password) {
     return res.status(401).json({ message: "No given credentials" });
   }
@@ -27,7 +29,7 @@ async function authLogin(req: any, res: any) {
   return res.status(200).json({ token: userToken });
 }
 
-async function authRegister(req: any, res: any) {
+async function authRegister(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.password) {
     return res.status(401).json({ message: "No given credentials" });
   }
