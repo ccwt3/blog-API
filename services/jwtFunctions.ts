@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export default {
   jwtSign,
   jwtVerify,
-}
+};
 
 const secret = process.env.JWT_KEY;
 if (!secret) {
@@ -11,7 +11,7 @@ if (!secret) {
 }
 
 function jwtSign(payload: object) {
-  const token = jwt.sign(payload, secret!);
+  const token = jwt.sign(payload, secret!, { expiresIn: "1m" });
   return token;
 }
 
@@ -19,7 +19,7 @@ function jwtVerify(token: string) {
   try {
     const payload = jwt.verify(token, secret!);
     return payload;
-  } catch(err) {
-    return 401
+  } catch (err) {
+    return 401;
   }
 }

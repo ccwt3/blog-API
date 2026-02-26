@@ -1,19 +1,25 @@
-import jwtFC from "./jwtFunctions"
+import type { Response, Request, NextFunction } from "express";
+import jwtFC from "./jwtFunctions";
 
-export default function checkToken(req: any, res: any, next: any) {
-  const headerBearer = req.headers["authorization"];
-  if (!headerBearer) {
+export default function checkToken(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const tokenCookie = req.signedCookies.token;
+
+  console.log(tokenCookie)
+
+  if (!tokenCookie) {
     return res.status(400).json({ message: "No given token" });
   }
 
-  const bearer = headerBearer.split(" ");
-  const token = bearer[1];
-  
-  const userInfo = jwtFC.jwtVerify(token);
+  const userInfo = jwtFC.jwtVerify(tokenCookie);
+
   if (userInfo === 401) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  req.user = userInfo
-  next()
+  req.user = userInfo as { id: string; role: string; username: string };
+  next();
 }

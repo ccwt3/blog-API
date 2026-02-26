@@ -26,7 +26,16 @@ async function authLogin(req: Request, res: Response) {
     role: userObj.role,
     username: userObj.username,
   });
-  return res.status(200).json({ token: userToken });
+
+  return res
+    .status(201)
+    .cookie("token", userToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.ENVIRONMENT === "production",
+      maxAge: 1000 * 60 * 1,
+    })
+    .json({ message: "User loged" });
 }
 
 async function authRegister(req: Request, res: Response) {
@@ -48,5 +57,13 @@ async function authRegister(req: Request, res: Response) {
     role: userObj.role,
     username: userObj.username,
   });
-  return res.status(200).json({ token: userToken });
+  return res
+    .status(201)
+    .cookie("token", userToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.ENVIRONMENT === "production",
+      maxAge: 1000 * 60 * 1,
+    })
+    .json({ message: "User created" });
 }
