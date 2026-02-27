@@ -8,8 +8,6 @@ export default function checkToken(
 ) {
   const tokenCookie = req.signedCookies.token;
 
-  console.log(tokenCookie)
-
   if (!tokenCookie) {
     return res.status(400).json({ message: "No given token" });
   }

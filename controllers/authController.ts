@@ -33,6 +33,7 @@ async function authLogin(req: Request, res: Response) {
       signed: true,
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 1,
     })
     .json({ message: "User loged" });
@@ -63,6 +64,7 @@ async function authRegister(req: Request, res: Response) {
       signed: true,
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 1,
     })
     .json({ message: "User created" });

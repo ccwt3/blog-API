@@ -1,12 +1,14 @@
 // librarys
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 const app = express();
 
 // modules
 import authRouter from "./routes/authRouter";
 import postsRouter from "./routes/postsRouter";
 import usersRouter from "./routes/usersRouter";
+import { corsOptions } from "./config/corsOptions";
 
 // Types
 import type {
@@ -19,7 +21,8 @@ import type {
 // config
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(process.env.COOKIE_KEY))
+app.use(cookieParser(process.env.COOKIE_KEY));
+app.use(cors(corsOptions));
 
 // routes middleware
 app.use("/auth", authRouter);
