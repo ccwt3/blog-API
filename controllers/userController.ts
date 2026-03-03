@@ -1,9 +1,17 @@
 import type { Request, Response } from "express";
 
+interface UsersRequest extends Request {
+  user?: {
+    id: string;
+    role: string;
+    username: string;
+  };
+}
+
 export default {
-  getUsers,
+  getMe,
 };
 
-async function getUsers(req: Request, res: Response) {
-  return res.status(200).json({ message: "get users" });
+async function getMe(req: UsersRequest, res: Response) {
+  return res.status(200).json(req.user?.username);
 }

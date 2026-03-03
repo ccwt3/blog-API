@@ -28,7 +28,7 @@ async function authLogin(req: Request, res: Response) {
   });
 
   return res
-    .status(201)
+    .status(200)
     .cookie("token", userToken, {
       signed: true,
       httpOnly: true,
