@@ -34,7 +34,7 @@ async function authLogin(req: Request, res: Response) {
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",
       sameSite: "lax",
-      maxAge: 1000 * 60 * 1,
+      maxAge: 1000 * 60 * 60,
     })
     .json({ message: "User loged" });
 }
@@ -65,7 +65,7 @@ async function authRegister(req: Request, res: Response) {
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",
       sameSite: "lax",
-      maxAge: 1000 * 60 * 1,
+      maxAge: 1000 * 60 * 60,
     })
     .json({ message: "User created" });
 }

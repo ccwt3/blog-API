@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import PostsModel from "../models/PostsModel";
 
 interface UsersRequest extends Request {
   user?: {
@@ -10,8 +11,28 @@ interface UsersRequest extends Request {
 
 export default {
   getMe,
+  getMyPosts,
+  emptyEndpoint,
 };
 
 async function getMe(req: UsersRequest, res: Response) {
   return res.status(200).json(req.user?.username);
+}
+
+async function getMyPosts(req: Request, res: Response) {
+  const userId = req.user!.id;
+
+  const allPosts = await PostsModel.getAllMyPosts(userId);
+
+  if (allPosts.status === 500)
+    return res.status(500).json({ message: "Error fetching the posts" });
+
+  return res.status(200).json({
+    message: "All posts fetched Succesfully",
+    posts: allPosts.allPosts,
+  });
+}
+
+function emptyEndpoint(req: Request, res: Response) {
+  return res.status(200).json({ message: "Empty endpoint" });
 }

@@ -1,9 +1,56 @@
 import type { Response, Request } from "express";
+import PostsModel from "../models/PostsModel";
+import { z } from "zod";
 
 export default {
-  getPosts,
+  postNewPost,
+  getPost,
+  emptyEndpoint,
 };
 
-async function getPosts(req: Request, res: Response) {
-  return res.status(200).json({ message: "get posts" });
+const uuIdSchema = z.string().uuid({ version: "v4" });
+
+async function getPost(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const postId = req.params.id as string;
+  const result = uuIdSchema.safeParse(postId);
+
+  if (!result.success) {
+    return res.status(403).json({
+      message: "No given mandatory information",
+      details: result.error.issues,
+    });
+  }
+
+  const post = await PostsModel.getOnePost(postId, userId);
+
+  if (post.status === 404 || post.status === 500) {
+    return res.status(404).json({ message: "Post not found" });
+  }
+
+  return res
+    .status(200)
+    .json({ message: "Post fetched Succesfully", post: post.post });
+}
+
+async function postNewPost(req: Request, res: Response) {
+  if (!req.body || !req.body.title || !req.body.message) {
+    return res.status(403).json({ message: "No given mandatory information" });
+  }
+
+  const userId = req.user!.id;
+  const title = req.body.title;
+  const message = req.body.message;
+
+  const newPost = await PostsModel.createPost(userId, title, message);
+
+  if (newPost.status === 500) {
+    return res.status(500).json({ message: "Error creating the Post" });
+  }
+
+  return res.status(201).json({ message: "Post created Succesfully" });
+}
+
+function emptyEndpoint(req: Request, res: Response) {
+  return res.status(200).json({ message: "Empty endpoint" });
 }

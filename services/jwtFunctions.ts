@@ -11,7 +11,7 @@ if (!secret) {
 }
 
 function jwtSign(payload: object) {
-  const token = jwt.sign(payload, secret!, { expiresIn: "1m" });
+  const token = jwt.sign(payload, secret!, { expiresIn: "1h" });
   return token;
 }
 

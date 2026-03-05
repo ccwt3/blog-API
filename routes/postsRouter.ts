@@ -1,6 +1,12 @@
-import postController from "../controllers/postsController";
 import { Router } from "express";
+
+import postController from "../controllers/postsController";
+import checkToken from "../services/chekToken";
+
 const postsRouter: Router = Router();
 export default postsRouter;
 
-postsRouter.get("/", postController.getPosts);
+postsRouter.post("/", checkToken, postController.postNewPost);
+
+postsRouter.get("/", checkToken, postController.emptyEndpoint);
+postsRouter.get("/:id", checkToken, postController.getPost);
