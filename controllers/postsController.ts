@@ -6,9 +6,33 @@ export default {
   postNewPost,
   getPost,
   emptyEndpoint,
+  deletePost,
 };
 
 const uuIdSchema = z.string().uuid({ version: "v4" });
+
+async function deletePost(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const postId = req.params.id as string;
+  const result = uuIdSchema.safeParse(postId);
+
+  if (!result.success) {
+    return res.status(403).json({
+      message: "No given mandatory information",
+      details: result.error.issues,
+    });
+  }
+
+  const response = await PostsModel.deleteOnePost(postId, userId);
+
+  if (response.status === 403) {
+    return res.status(403).json({ message: "No access to this post" });
+  } else if (response.status === 500) {
+    return res.status(500).json({ message: "Error deleting the post" });
+  }
+
+  return res.status(200).json({ message: "Post deleted succesfully" });
+}
 
 async function getPost(req: Request, res: Response) {
   const userId = req.user!.id;

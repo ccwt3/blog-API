@@ -4,6 +4,7 @@ export default {
   createPost,
   getAllMyPosts,
   getOnePost,
+  deleteOnePost,
 };
 
 async function createPost(id: string, title: string, message: string) {
@@ -28,9 +29,10 @@ async function getAllMyPosts(id: string) {
     const allPosts = await prisma.post.findMany({
       where: {
         author_id: id,
-      }, orderBy: {
-        published_time: "desc"
-      }
+      },
+      orderBy: {
+        published_time: "desc",
+      },
     });
 
     return { status: 200, allPosts };
@@ -53,6 +55,32 @@ async function getOnePost(postId: string, userId: string) {
     }
 
     return { status: 200, post };
+  } catch (err) {
+    console.error(err);
+    return { status: 500 };
+  }
+}
+
+async function deleteOnePost(postId: string, userId: string) {
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: postId,
+        author_id: userId,
+      },
+    });
+
+    if (!post) {
+      return { status: 403 };
+    }
+
+    await prisma.post.delete({
+      where: {
+        id: post.id,
+      },
+    });
+
+    return { status: 200 };
   } catch (err) {
     console.error(err);
     return { status: 500 };
