@@ -16,7 +16,7 @@ export default {
 };
 
 async function getMe(req: UsersRequest, res: Response) {
-  return res.status(200).json(req.user?.username);
+  return res.status(200).json({message: "User details fetched successfully", user: req.user});
 }
 
 async function getMyPosts(req: Request, res: Response) {

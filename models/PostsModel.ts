@@ -28,7 +28,9 @@ async function getAllMyPosts(id: string) {
     const allPosts = await prisma.post.findMany({
       where: {
         author_id: id,
-      },
+      }, orderBy: {
+        published_time: "desc"
+      }
     });
 
     return { status: 200, allPosts };
