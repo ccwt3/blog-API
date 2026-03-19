@@ -12,11 +12,21 @@ export default {
 
 const uuIdSchema = z.string().uuid({ version: "v4" });
 
-async function updatePost(req: Request, res: Response) {
+function idGetter(req: Request) {
   const userId = req.user!.id;
   const postId = req.params.id as string;
-  const newMessage = req.body.newMessage;
+
+  return {
+    userId,
+    postId,
+  };
+}
+
+async function updatePost(req: Request, res: Response) {
+  const { userId, postId } = idGetter(req);
+  
   const result = uuIdSchema.safeParse(postId);
+  const newMessage = req.body.newMessage;
 
   if (!result.success && !req.body.newMessage) {
     return res.status(403).json({
@@ -37,8 +47,8 @@ async function updatePost(req: Request, res: Response) {
 }
 
 async function deletePost(req: Request, res: Response) {
-  const userId = req.user!.id;
-  const postId = req.params.id as string;
+  const { userId, postId } = idGetter(req);
+  
   const result = uuIdSchema.safeParse(postId);
 
   if (!result.success) {
@@ -60,8 +70,8 @@ async function deletePost(req: Request, res: Response) {
 }
 
 async function getPost(req: Request, res: Response) {
-  const userId = req.user!.id;
-  const postId = req.params.id as string;
+  const { userId, postId } = idGetter(req);
+
   const result = uuIdSchema.safeParse(postId);
 
   if (!result.success) {
