@@ -5,6 +5,7 @@ export default {
   getAllMyPosts,
   getOnePost,
   deleteOnePost,
+  updatePost,
 };
 
 async function createPost(id: string, title: string, message: string) {
@@ -77,6 +78,35 @@ async function deleteOnePost(postId: string, userId: string) {
     await prisma.post.delete({
       where: {
         id: post.id,
+      },
+    });
+
+    return { status: 200 };
+  } catch (err) {
+    console.error(err);
+    return { status: 500 };
+  }
+}
+
+async function updatePost(postId: string, userId: string, newMessage: string) {
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: postId,
+        author_id: userId,
+      },
+    });
+
+    if (!post) {
+      return { status: 403 };
+    }
+
+    await prisma.post.update({
+      where: {
+        id: post.id,
+      },
+      data: {
+        message: newMessage,
       },
     });
 

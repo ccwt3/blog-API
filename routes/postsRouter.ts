@@ -12,3 +12,5 @@ postsRouter.get("/", checkToken, postController.emptyEndpoint);
 postsRouter.get("/:id", checkToken, postController.getPost);
 
 postsRouter.delete("/:id", checkToken, postController.deletePost);
+
+postsRouter.patch("/:id", checkToken, postController.updatePost);

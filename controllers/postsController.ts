@@ -7,9 +7,34 @@ export default {
   getPost,
   emptyEndpoint,
   deletePost,
+  updatePost,
 };
 
 const uuIdSchema = z.string().uuid({ version: "v4" });
+
+async function updatePost(req: Request, res: Response) {
+  const userId = req.user!.id;
+  const postId = req.params.id as string;
+  const newMessage = req.body.newMessage;
+  const result = uuIdSchema.safeParse(postId);
+
+  if (!result.success && !req.body.newMessage) {
+    return res.status(403).json({
+      message: "No given mandatory information",
+      details: result.error.issues,
+    });
+  }
+
+  const response = await PostsModel.updatePost(postId, userId, newMessage);
+
+  if (response.status === 403) {
+    return res.status(403).json({ message: "No access to this post" });
+  } else if (response.status === 500) {
+    return res.status(500).json({ message: "Error updating this post" });
+  }
+
+  return res.status(200).json({ message: "Post updated Succesfully" });
+}
 
 async function deletePost(req: Request, res: Response) {
   const userId = req.user!.id;
