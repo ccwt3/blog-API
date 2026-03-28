@@ -25,7 +25,7 @@ async function createUser(userName: string, password: string) {
     },
   });
 
-  return { statu: 200, id: user.id, role: user.role, username: user.username };
+  return { status: 200, id: user.id, role: user.role, username: user.username };
 }
 
 async function validateCredentials(username: string, password: string) {

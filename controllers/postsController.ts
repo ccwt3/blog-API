@@ -28,10 +28,10 @@ async function updatePost(req: Request, res: Response) {
   const result = uuIdSchema.safeParse(postId);
   const newMessage = req.body.newMessage;
 
-  if (!result.success && !req.body.newMessage) {
+  if (!result.success || !req.body.newMessage) {
     return res.status(403).json({
       message: "No given mandatory information",
-      details: result.error.issues,
+      details: result.error?.issues || "No message body",
     });
   }
 
