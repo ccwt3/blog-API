@@ -4,7 +4,22 @@ import bcrypt from "bcryptjs";
 export default {
   createUser,
   validateCredentials,
+  getUser,
 };
+
+async function getUser(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return { status: 404, message: "User not found" };
+  }
+
+  return { status: 200, user };
+}
 
 async function createUser(userName: string, password: string) {
   const isUsernameUsed = await prisma.user.findUnique({

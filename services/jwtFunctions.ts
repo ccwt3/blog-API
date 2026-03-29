@@ -1,11 +1,14 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import tokensModel from "../models/tokensModel";
+import UsersModel from "../models/UsersModel";
+
 export default {
   jwtSignAccess,
   jwtVerifyAccess,
   jwtSignRefresh,
   jwtVerifyRefresh,
+  createNewToken
 };
 
 interface payload {
@@ -19,6 +22,22 @@ const refreshSecret = process.env.JWT_KEY_REFRESH;
 
 if (!accesSecret || !refreshSecret) {
   throw new Error("Key is empty");
+}
+
+async function createNewToken(userId: string) {
+  const userObj = await UsersModel.getUser(userId);
+
+  if (userObj.status !== 200) {
+    return { status: 401 };
+  }
+
+  const accesToken = jwtSignAccess({
+    id: userObj.user!.id,
+    role: userObj.user!.role,
+    username: userObj.user!.username,
+  });
+
+  return { status: 200, token: accesToken };
 }
 
 async function jwtSignRefresh(payload: payload) {
@@ -51,7 +70,7 @@ async function jwtVerifyRefresh(token: string) {
     const result = await tokensModel.reviewToken(token, payload.userId);
     if (result.status === 401) throw new Error("Reused token");
 
-    return { status: 200 };
+    return { status: 200, id: payload.userId };
   } catch {
     return { status: 401 };
   }

@@ -5,3 +5,4 @@ export default authRouter;
 
 authRouter.post("/login", authController.authLogin);
 authRouter.post("/register", authController.authRegister);
+authRouter.post("/refresh", authController.authRefresh);
