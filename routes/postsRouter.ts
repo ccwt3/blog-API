@@ -9,7 +9,7 @@ export default postsRouter;
 postsRouter.post("/", checkToken, postController.postNewPost);
 
 postsRouter.get("/", checkToken, postController.emptyEndpoint);
-postsRouter.get("/:id", checkToken, postController.getPost);
+postsRouter.get("/:id", checkToken, postController.getPost); //todo make this work for anon users as well
 
 postsRouter.delete("/:id", checkToken, postController.deletePost);
 

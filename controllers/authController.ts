@@ -21,15 +21,28 @@ async function authLogin(req: Request, res: Response) {
     return res.status(401).json({ message: userObj.message });
   }
 
-  const userToken = jwtFC.jwtSign({
-    id: userObj.id,
-    role: userObj.role,
-    username: userObj.username,
+  const userToken = jwtFC.jwtSignAccess({
+    id: userObj.id!,
+    role: userObj.role!,
+    username: userObj.username!,
+  });
+
+  const refreshToken = await jwtFC.jwtSignRefresh({
+    id: userObj.id!,
+    role: userObj.role!,
+    username: userObj.username!,
   });
 
   return res
     .status(200)
     .cookie("token", userToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.ENVIRONMENT === "production",
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 3,
+    })
+    .cookie("refreshToken", refreshToken, {
       signed: true,
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",
@@ -53,14 +66,28 @@ async function authRegister(req: Request, res: Response) {
     return res.status(409).json({ message: userObj.message });
   }
 
-  const userToken = jwtFC.jwtSign({
-    id: userObj.id,
-    role: userObj.role,
-    username: userObj.username,
+  const userToken = jwtFC.jwtSignAccess({
+    id: userObj.id!,
+    role: userObj.role!,
+    username: userObj.username!,
   });
+
+  const refreshToken = await jwtFC.jwtSignRefresh({
+    id: userObj.id!,
+    role: userObj.role!,
+    username: userObj.username!,
+  });
+
   return res
     .status(201)
     .cookie("token", userToken, {
+      signed: true,
+      httpOnly: true,
+      secure: process.env.ENVIRONMENT === "production",
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 3,
+    })
+    .cookie("refreshToken", refreshToken, {
       signed: true,
       httpOnly: true,
       secure: process.env.ENVIRONMENT === "production",

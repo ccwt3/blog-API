@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "./generated/prisma"
 }
 
 datasource db {
@@ -35,6 +35,14 @@ model Comment {
   author_id String
   author    User   @relation(fields: [author_id], references: [id])
   message   String
+}
+
+model Tokens {
+  id      String @id @default(uuid())
+  user_id String
+  token   String @unique
+
+  @@index([user_id])
 }
 
 enum Role {

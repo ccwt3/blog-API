@@ -12,7 +12,7 @@ export default function checkToken(
     return res.status(400).json({ message: "No given token" });
   }
 
-  const userInfo = jwtFC.jwtVerify(tokenCookie);
+  const userInfo = jwtFC.jwtVerifyAccess(tokenCookie);
 
   if (userInfo === 401) {
     return res.status(401).json({ message: "Unauthorized" });

@@ -1,23 +1,65 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import tokensModel from "../models/tokensModel";
 export default {
-  jwtSign,
-  jwtVerify,
+  jwtSignAccess,
+  jwtVerifyAccess,
+  jwtSignRefresh,
+  jwtVerifyRefresh,
 };
 
-const secret = process.env.JWT_KEY;
-if (!secret) {
+interface payload {
+  id: string;
+  role: string;
+  username: string;
+}
+
+const accesSecret = process.env.JWT_KEY;
+const refreshSecret = process.env.JWT_KEY_REFRESH;
+
+if (!accesSecret || !refreshSecret) {
   throw new Error("Key is empty");
 }
 
-function jwtSign(payload: object) {
-  const token = jwt.sign(payload, secret!, { expiresIn: "1h" });
+async function jwtSignRefresh(payload: payload) {
+  const token = jwt.sign({ userId: payload.id }, refreshSecret!, {
+    expiresIn: "1h",
+  });
+
+  const storer = await tokensModel.storeToken(token, payload.id);
+
+  if (storer.status === 500) {
+    return { status: 500 };
+  }
+
   return token;
 }
 
-function jwtVerify(token: string) {
+function jwtSignAccess(payload: payload) {
+  const token = jwt.sign(payload, accesSecret!, { expiresIn: "3m" });
+  return token;
+}
+
+async function jwtVerifyRefresh(token: string) {
   try {
-    const payload = jwt.verify(token, secret!);
+    const payload = jwt.verify(token, refreshSecret!);
+
+    if (typeof payload === "string") {
+      return { status: 401 };
+    }
+
+    const result = await tokensModel.reviewToken(token, payload.userId);
+    if (result.status === 401) throw new Error("Reused token");
+
+    return { status: 200 };
+  } catch {
+    return { status: 401 };
+  }
+}
+
+function jwtVerifyAccess(token: string) {
+  try {
+    const payload = jwt.verify(token, accesSecret!);
     return payload;
   } catch (err) {
     return 401;
