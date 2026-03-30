@@ -82,7 +82,7 @@ async function jwtVerifyRefresh(token: string) {
 function jwtVerifyAccess(token: string) {
   try {
     const payload = jwt.verify(token, accesSecret!);
-    return payload;
+    return {status: 200, payload};
   } catch (err) {
     return { status: 401, message: "Invalid token" };
   }

@@ -24,7 +24,7 @@ function idGetter(req: Request) {
 
 async function updatePost(req: Request, res: Response) {
   const { userId, postId } = idGetter(req);
-  
+
   const result = uuIdSchema.safeParse(postId);
   const newMessage = req.body.newMessage;
 
@@ -48,7 +48,7 @@ async function updatePost(req: Request, res: Response) {
 
 async function deletePost(req: Request, res: Response) {
   const { userId, postId } = idGetter(req);
-  
+
   const result = uuIdSchema.safeParse(postId);
 
   if (!result.success) {
@@ -70,7 +70,14 @@ async function deletePost(req: Request, res: Response) {
 }
 
 async function getPost(req: Request, res: Response) {
-  const { userId, postId } = idGetter(req);
+  let userId;
+  const postId = req.params.id as string;
+
+  if (!req.user) {
+    userId = "anon";
+  } else {
+    userId = req.user.id;
+  }
 
   const result = uuIdSchema.safeParse(postId);
 

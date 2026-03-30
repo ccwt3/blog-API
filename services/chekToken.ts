@@ -14,10 +14,31 @@ export default function checkToken(
 
   const userInfo = jwtFC.jwtVerifyAccess(tokenCookie);
 
-  if (userInfo === 401) {
+  if (userInfo.status === 401) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  req.user = userInfo as { id: string; role: string; username: string };
+  req.user = userInfo.payload as { id: string; role: string; username: string };
+  next();
+}
+
+export function checkTokenForAnon(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const tokenCookie = req.signedCookies.token;
+
+  if (!tokenCookie) {
+    return next();
+  }
+
+  const userInfo = jwtFC.jwtVerifyAccess(tokenCookie);
+
+  if (userInfo.status === 401) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  req.user = userInfo.payload as { id: string; role: string; username: string };
   next();
 }

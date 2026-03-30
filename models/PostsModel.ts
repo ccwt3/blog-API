@@ -51,7 +51,7 @@ async function getOnePost(postId: string, userId: string) {
       },
     });
 
-    if (!post || post.is_published === false) {
+    if (!post || (post.is_published === false && post.author_id !== userId)) {
       return { status: 404 };
     }
 
