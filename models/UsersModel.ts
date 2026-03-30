@@ -15,7 +15,7 @@ async function getUser(userId: string) {
   });
 
   if (!user) {
-    return { status: 404, message: "User not found" };
+    return { status: 404 };
   }
 
   return { status: 200, user };
@@ -29,7 +29,7 @@ async function createUser(userName: string, password: string) {
   });
 
   if (isUsernameUsed) {
-    return { status: 409, message: "Username is already in use" };
+    return { status: 409 };
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -51,13 +51,13 @@ async function validateCredentials(username: string, password: string) {
   });
 
   if (!user) {
-    return { status: 401, message: "Invalid Credentials" };
+    return { status: 401 };
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    return { status: 401, message: "Invalid Credentials" };
+    return { status: 401 };
   }
 
   return { status: 200, id: user.id, role: user.role, username: user.username };

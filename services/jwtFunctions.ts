@@ -8,7 +8,7 @@ export default {
   jwtVerifyAccess,
   jwtSignRefresh,
   jwtVerifyRefresh,
-  createNewToken
+  createNewToken,
 };
 
 interface payload {
@@ -27,8 +27,8 @@ if (!accesSecret || !refreshSecret) {
 async function createNewToken(userId: string) {
   const userObj = await UsersModel.getUser(userId);
 
-  if (userObj.status !== 200) {
-    return { status: 401 };
+  if (userObj.status === 404) {
+    return { status: userObj.status, message: "User not found" };
   }
 
   const accesToken = jwtSignAccess({
@@ -64,15 +64,18 @@ async function jwtVerifyRefresh(token: string) {
     const payload = jwt.verify(token, refreshSecret!);
 
     if (typeof payload === "string") {
-      return { status: 401 };
+      return { status: 401, message: "Invalid token" };
     }
 
-    const result = await tokensModel.reviewToken(token, payload.userId);
-    if (result.status === 401) throw new Error("Reused token");
+    const result = await tokensModel.deleteToken(token, payload.userId);
+    
+    if (result.status === 401) return { status: 401, message: "Reused token" };
+    else if (result.status === 500)
+      return { status: 500, message: "Server error" };
 
     return { status: 200, id: payload.userId };
   } catch {
-    return { status: 401 };
+    return { status: 401, message: "Invalid token" };
   }
 }
 
@@ -81,6 +84,6 @@ function jwtVerifyAccess(token: string) {
     const payload = jwt.verify(token, accesSecret!);
     return payload;
   } catch (err) {
-    return 401;
+    return { status: 401, message: "Invalid token" };
   }
 }
