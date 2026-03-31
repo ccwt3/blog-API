@@ -29,7 +29,7 @@ async function updatePost(req: Request, res: Response) {
   const newMessage = req.body.newMessage;
 
   if (!result.success || !req.body.newMessage) {
-    return res.status(403).json({
+    return res.status(400).json({
       message: "No given mandatory information",
       details: result.error?.issues || "No message body",
     });
@@ -37,8 +37,8 @@ async function updatePost(req: Request, res: Response) {
 
   const response = await PostsModel.updatePost(postId, userId, newMessage);
 
-  if (response.status === 403) {
-    return res.status(403).json({ message: "No access to this post" });
+  if (response.status === 404) {
+    return res.status(404).json({ message: "Post not found" });
   } else if (response.status === 500) {
     return res.status(500).json({ message: "Error updating this post" });
   }
@@ -52,7 +52,7 @@ async function deletePost(req: Request, res: Response) {
   const result = uuIdSchema.safeParse(postId);
 
   if (!result.success) {
-    return res.status(403).json({
+    return res.status(400).json({
       message: "No given mandatory information",
       details: result.error.issues,
     });
@@ -60,8 +60,8 @@ async function deletePost(req: Request, res: Response) {
 
   const response = await PostsModel.deleteOnePost(postId, userId);
 
-  if (response.status === 403) {
-    return res.status(403).json({ message: "No access to this post" });
+  if (response.status === 404) {
+    return res.status(404).json({ message: "Post not found" });
   } else if (response.status === 500) {
     return res.status(500).json({ message: "Error deleting the post" });
   }
@@ -82,7 +82,7 @@ async function getPost(req: Request, res: Response) {
   const result = uuIdSchema.safeParse(postId);
 
   if (!result.success) {
-    return res.status(403).json({
+    return res.status(400).json({
       message: "No given mandatory information",
       details: result.error.issues,
     });
@@ -90,8 +90,10 @@ async function getPost(req: Request, res: Response) {
 
   const post = await PostsModel.getOnePost(postId, userId);
 
-  if (post.status === 404 || post.status === 500) {
+  if (post.status === 404) {
     return res.status(404).json({ message: "Post not found" });
+  } else if (post.status === 500) {
+    return res.status(500).json({ message: "Error fetching the post" });
   }
 
   return res
@@ -101,7 +103,7 @@ async function getPost(req: Request, res: Response) {
 
 async function postNewPost(req: Request, res: Response) {
   if (!req.body || !req.body.title || !req.body.message) {
-    return res.status(403).json({ message: "No given mandatory information" });
+    return res.status(400).json({ message: "No given mandatory information" });
   }
 
   const userId = req.user!.id;

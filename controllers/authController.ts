@@ -12,7 +12,7 @@ export default {
 
 async function authLogin(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.password) {
-    return res.status(401).json({ message: "No given credentials" });
+    return res.status(400).json({ message: "No given credentials" });
   }
 
   const username = req.body.username;
@@ -21,6 +21,8 @@ async function authLogin(req: Request, res: Response) {
   const userObj = await userModel.validateCredentials(username, password);
   if (userObj.status === 401) {
     return res.status(401).json({ message: "Invalid Credentials" });
+  } else if (userObj.status === 500) {
+    return res.status(500).json({ message: "Error validating credentials" });
   }
 
   const userToken = jwtFC.jwtSignAccess({
@@ -66,7 +68,7 @@ async function authLogin(req: Request, res: Response) {
 
 async function authRegister(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.password) {
-    return res.status(401).json({ message: "No given credentials" });
+    return res.status(400).json({ message: "No given credentials" });
   }
 
   const username = req.body.username;
@@ -76,6 +78,8 @@ async function authRegister(req: Request, res: Response) {
 
   if (userObj.status === 409) {
     return res.status(409).json({ message: "Username is already in use" });
+  } else if (userObj.status === 500) {
+    return res.status(500).json({ message: "Error creating user" });
   }
 
   const userToken = jwtFC.jwtSignAccess({
@@ -121,7 +125,7 @@ async function authRegister(req: Request, res: Response) {
 
 async function authRefresh(req: Request, res: Response) {
   if (!req.signedCookies || !req.signedCookies.refreshToken) {
-    return res.status(401).json({ message: "No given credentials" });
+    return res.status(400).json({ message: "No given credentials" });
   }
 
   const refreshToken = req.signedCookies.refreshToken;
@@ -154,7 +158,7 @@ async function authRefresh(req: Request, res: Response) {
 
 async function authLogout(req: Request, res: Response) {
   if (!req.signedCookies || !req.signedCookies.refreshToken) {
-    return res.status(401).json({ message: "No given credentials" });
+    return res.status(400).json({ message: "No given credentials" });
   }
 
   const refreshToken = req.signedCookies.refreshToken;
@@ -162,6 +166,10 @@ async function authLogout(req: Request, res: Response) {
 
   if (userData.status === 401) {
     return res.status(401).json({ message: userData.message });
+  } else if (userData.status === 403) {
+    return res.status(403).json({ message: userData.message });
+  } else if (userData.status === 500) {
+    return res.status(500).json({ message: userData.message });
   }
 
   return res

@@ -7,9 +7,8 @@ export default {
 };
 
 async function storeToken(token: string, userId: string) {
-  const hashedToken = createHash("sha256").update(token).digest("hex");
-
   try {
+    const hashedToken = createHash("sha256").update(token).digest("hex");
     const row = await prisma.tokens.create({
       data: {
         user_id: userId,
@@ -18,15 +17,15 @@ async function storeToken(token: string, userId: string) {
     });
 
     return { status: 200, row: row.id };
-  } catch {
+  } catch (error) {
+    console.error("Error storing token:", error);
     return { status: 500 };
   }
 }
 
 async function deleteToken(token: string, userId: string) {
-  const hashedToken = createHash("sha256").update(token).digest("hex");
-
   try {
+    const hashedToken = createHash("sha256").update(token).digest("hex");
     const deleted = await prisma.tokens
       .delete({
         where: { token: hashedToken },
@@ -35,11 +34,12 @@ async function deleteToken(token: string, userId: string) {
 
     if (!deleted) {
       await prisma.tokens.deleteMany({ where: { user_id: userId } });
-      return { status: 401 };
+      return { status: 403 };
     }
 
     return { status: 200 };
-  } catch {
+  } catch (error) {
+    console.error("Error deleting token:", error);
     return { status: 500 };
   }
 }

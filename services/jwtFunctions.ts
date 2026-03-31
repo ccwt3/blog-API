@@ -29,6 +29,8 @@ async function createNewToken(userId: string) {
 
   if (userObj.status === 404) {
     return { status: userObj.status, message: "User not found" };
+  } else if (userObj.status === 500) {
+    return { status: userObj.status, message: "Error fetching user" };
   }
 
   const accesToken = jwtSignAccess({
@@ -55,8 +57,13 @@ async function jwtSignRefresh(payload: payload) {
 }
 
 function jwtSignAccess(payload: payload) {
-  const token = jwt.sign(payload, accesSecret!, { expiresIn: "3m" });
-  return token;
+  try {
+    const token = jwt.sign(payload, accesSecret!, { expiresIn: "3m" });
+    return token;
+  } catch (error) {
+    console.error("Error signing access token:", error);
+    return { status: 500, message: "Error signing access token" };
+  }
 }
 
 async function jwtVerifyRefresh(token: string) {
@@ -68,22 +75,24 @@ async function jwtVerifyRefresh(token: string) {
     }
 
     const result = await tokensModel.deleteToken(token, payload.userId);
-    
-    if (result.status === 401) return { status: 401, message: "Reused token" };
+
+    if (result.status === 403) return { status: 403, message: "Reused token" };
     else if (result.status === 500)
-      return { status: 500, message: "Server error" };
+      return { status: 500, message: "Error deleting token" };
 
     return { status: 200, id: payload.userId };
-  } catch {
-    return { status: 401, message: "Invalid token" };
+  } catch (error) {
+    console.error("Error verifying refresh token:", error);
+    return { status: 500, message: "Invalid token" };
   }
 }
 
 function jwtVerifyAccess(token: string) {
   try {
     const payload = jwt.verify(token, accesSecret!);
-    return {status: 200, payload};
-  } catch (err) {
+    return { status: 200, payload };
+  } catch (error) {
+    console.error("Error verifying access token:", error);
     return { status: 401, message: "Invalid token" };
   }
 }

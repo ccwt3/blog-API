@@ -8,57 +8,82 @@ export default {
 };
 
 async function getUser(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
 
-  if (!user) {
-    return { status: 404 };
+    if (!user) {
+      return { status: 404 };
+    }
+
+    return { status: 200, user };
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return { status: 500 };
   }
-
-  return { status: 200, user };
 }
 
 async function createUser(userName: string, password: string) {
-  const isUsernameUsed = await prisma.user.findUnique({
-    where: {
-      username: userName,
-    },
-  });
+  try {
+    const isUsernameUsed = await prisma.user.findUnique({
+      where: {
+        username: userName,
+      },
+    });
 
-  if (isUsernameUsed) {
-    return { status: 409 };
+    if (isUsernameUsed) {
+      return { status: 409 };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: {
+        username: userName,
+        password: hashedPassword,
+      },
+    });
+
+    return {
+      status: 200,
+      id: user.id,
+      role: user.role,
+      username: user.username,
+    };
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return { status: 500 };
   }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-  const user = await prisma.user.create({
-    data: {
-      username: userName,
-      password: hashedPassword,
-    },
-  });
-
-  return { status: 200, id: user.id, role: user.role, username: user.username };
 }
 
 async function validateCredentials(username: string, password: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      username: username,
-    },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
 
-  if (!user) {
-    return { status: 401 };
+    if (!user) {
+      return { status: 401 };
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return { status: 401 };
+    }
+
+    return {
+      status: 200,
+      id: user.id,
+      role: user.role,
+      username: user.username,
+    };
+  } catch (error) {
+    console.error("Error validating credentials:", error);
+    return { status: 500 };
   }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    return { status: 401 };
-  }
-
-  return { status: 200, id: user.id, role: user.role, username: user.username };
 }

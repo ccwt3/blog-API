@@ -10,7 +10,7 @@ export default {
 
 async function createPost(id: string, title: string, message: string) {
   try {
-    const post = await prisma.post.create({
+    await prisma.post.create({
       data: {
         author_id: id,
         title: title,
@@ -19,8 +19,8 @@ async function createPost(id: string, title: string, message: string) {
     });
 
     return { status: 201 };
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error creating post:", error);
     return { status: 500 };
   }
 }
@@ -37,8 +37,8 @@ async function getAllMyPosts(id: string) {
     });
 
     return { status: 200, allPosts };
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
     return { status: 500 };
   }
 }
@@ -56,8 +56,8 @@ async function getOnePost(postId: string, userId: string) {
     }
 
     return { status: 200, post };
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error fetching post:", error);
     return { status: 500 };
   }
 }
@@ -72,7 +72,7 @@ async function deleteOnePost(postId: string, userId: string) {
     });
 
     if (!post) {
-      return { status: 403 };
+      return { status: 404 };
     }
 
     await prisma.post.delete({
@@ -98,7 +98,7 @@ async function updatePost(postId: string, userId: string, newMessage: string) {
     });
 
     if (!post) {
-      return { status: 403 };
+      return { status: 404 };
     }
 
     await prisma.post.update({
@@ -111,8 +111,8 @@ async function updatePost(postId: string, userId: string, newMessage: string) {
     });
 
     return { status: 200 };
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error updating post:", error);
     return { status: 500 };
   }
 }
