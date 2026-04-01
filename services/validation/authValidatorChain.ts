@@ -16,6 +16,6 @@ export default [
     .notEmpty()
     .withMessage("Password is required")
     .bail()
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long")
+    .isLength({ min: 5 })
+    .withMessage("Password must be at least 5 characters long")
 ]

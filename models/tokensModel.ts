@@ -26,19 +26,17 @@ async function storeToken(token: string, userId: string) {
 async function deleteToken(token: string, userId: string) {
   try {
     const hashedToken = createHash("sha256").update(token).digest("hex");
-    const deleted = await prisma.tokens
-      .delete({
-        where: { token: hashedToken },
-      })
-      .catch(() => null);
+    const deleted = await prisma.tokens.delete({
+      where: { token: hashedToken },
+    });
 
-    if (!deleted) {
+    return { status: 200 };
+  } catch (error: any) {
+    if (error?.code === "P2025") {
       await prisma.tokens.deleteMany({ where: { user_id: userId } });
       return { status: 403 };
     }
 
-    return { status: 200 };
-  } catch (error) {
     console.error("Error deleting token:", error);
     return { status: 500 };
   }
